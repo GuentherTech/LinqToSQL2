@@ -166,6 +166,10 @@ namespace System.Data.Linq {
                 }
                 else if (toType == typeof(System.Xml.Linq.XDocument) && (string)value == string.Empty) {
                     return new System.Xml.Linq.XDocument();
+				}
+				// [JA] - fixed bug where empty XML column throws an exception
+                else if (toType == typeof(System.Xml.Linq.XElement) && (string)value == string.Empty) {
+                    return null;
                 }
                 else if (!(typeof(IConvertible).IsAssignableFrom(toType)) &&
                     (mi = toType.GetMethod("Parse", BindingFlags.Static | BindingFlags.Public, null, StringArg, null)) != null) {
