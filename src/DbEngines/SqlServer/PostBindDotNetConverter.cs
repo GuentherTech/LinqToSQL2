@@ -9,6 +9,7 @@ using System.Reflection;
 using System.Text;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
+using System.Data.Linq.SqlClient;
 
 namespace System.Data.Linq.DbEngines.SqlServer
 {

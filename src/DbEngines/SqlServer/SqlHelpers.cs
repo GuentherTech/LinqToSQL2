@@ -1,9 +1,7 @@
 using System.Text;
 
-namespace System.Data.Linq.DbEngines.SqlServer
+namespace System.Data.Linq.SqlClient
 {
-#warning [FB] BREAKING CHANGE. This namespace was in System.Data.Linq.SqlClient. Rename the new namespace or keep breaking change.
-
 	/// <summary>
 	/// Public helper methods to be used in queries. 
 	/// </summary>

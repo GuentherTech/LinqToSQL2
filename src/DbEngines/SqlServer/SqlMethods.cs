@@ -5,10 +5,8 @@ using System.Text.RegularExpressions;
 using System.Reflection;
 using System.Diagnostics.CodeAnalysis;
 
-namespace System.Data.Linq.DbEngines.SqlServer
+namespace System.Data.Linq.SqlClient
 {
-#warning [FB] BREAKING CHANGE. This namespace was in System.Data.Linq.SqlClient. Rename the new namespace or keep breaking change.
-
 	/// <summary>
 	/// Methods which are to be used inside Linq to Sql queries as alternatives to regular Linq methods. 
 	/// </summary>
