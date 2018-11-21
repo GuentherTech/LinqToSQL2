@@ -30,6 +30,9 @@ namespace System.Data.Linq.DbEngines.SqlServer
 	[SuppressMessage("Microsoft.Maintainability", "CA1506:AvoidExcessiveClassCoupling", Justification = "Unknown reason.")]
 	public class SqlProvider : IReaderProvider, IConnectionUser
 	{
+		// [JA] added hook for better logging
+		public static Action<IDbCommand> CommandExecuting;
+
 #warning REFACTORING CANDIDATE FOR #23
 		#region Class Members
 		private IDataServices _services;
@@ -650,6 +653,10 @@ namespace System.Data.Linq.DbEngines.SqlServer
 			cmd.CommandTimeout = _commandTimeout;
 			cmd.Transaction = _conManager.Transaction;
 			cmd.CommandText = command;
+			
+			// [JA] - added hook for better logging
+			CommandExecuting?.Invoke (cmd);
+
 			cmd.ExecuteNonQuery();
 		}
 
@@ -769,6 +776,9 @@ namespace System.Data.Linq.DbEngines.SqlServer
 
 		private void LogCommand(TextWriter writer, DbCommand cmd)
 		{
+			// [JA] added hook for better logging
+			CommandExecuting?.Invoke (cmd);
+
 			if(writer != null)
 			{
 				writer.WriteLine(cmd.CommandText);
