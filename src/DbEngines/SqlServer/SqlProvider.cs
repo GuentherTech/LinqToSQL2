@@ -197,15 +197,17 @@ namespace System.Data.Linq.DbEngines.SqlServer
 
 		private static DbProviderFactory GetProvider(string providerName)
 		{
-			bool hasProvider =
-				DbProviderFactories.GetFactoryClasses().Rows.OfType<DataRow>()
-				.Select(r => (string)r["InvariantName"])
-				.Contains(providerName, StringComparer.OrdinalIgnoreCase);
-			if(hasProvider)
-			{
-				return DbProviderFactories.GetFactory(providerName);
-			}
-			return null;
+#warning [JA] Temporary fix. We need to support SQL CE as well.
+			return SqlClientFactory.Instance;
+			//bool hasProvider =
+			//	DbProviderFactories.GetFactoryClasses().Rows.OfType<DataRow>()
+			//	.Select(r => (string)r["InvariantName"])
+			//	.Contains(providerName, StringComparer.OrdinalIgnoreCase);
+			//if(hasProvider)
+			//{
+			//	return DbProviderFactories.GetFactory(providerName);
+			//}
+			//return null;
 		}
 
 		#region Dispose\Finalize

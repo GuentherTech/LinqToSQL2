@@ -52,11 +52,12 @@ namespace System.Data.Linq
             }
         }
 
-        [SecuritySafeCritical]
+		// [JA] - took this out
+        //[SecuritySafeCritical]
         private static void DemandGrantSet(Assembly assembly) {
-            PermissionSet targetGrantSet = assembly.PermissionSet;
-            targetGrantSet.AddPermission(RestrictedMemberAccessPermission);
-            targetGrantSet.Demand();
+            //PermissionSet targetGrantSet = assembly.PermissionSet;
+            //targetGrantSet.AddPermission(RestrictedMemberAccessPermission);
+            //targetGrantSet.Demand();
         }
 
         private static bool HasReflectionPermission(Type type) {

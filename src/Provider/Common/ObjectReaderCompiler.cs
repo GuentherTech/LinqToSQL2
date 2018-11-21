@@ -52,31 +52,32 @@ namespace System.Data.Linq.Provider.Common
 			get { return captureModule; }
 		}
 
-		[ResourceExposure(ResourceScope.Machine)] // filename parameter later used by other methods.
-		internal static void StartCaptureToFile(string filename)
-		{
-			if(captureAssembly == null)
-			{
-				string dir = System.IO.Path.GetDirectoryName(filename);
-				if(dir.Length == 0) dir = null;
-				string name = System.IO.Path.GetFileName(filename);
-				AssemblyName assemblyName = new AssemblyName(System.IO.Path.GetFileNameWithoutExtension(name));
-				captureAssembly = AppDomain.CurrentDomain.DefineDynamicAssembly(assemblyName, AssemblyBuilderAccess.Save, dir);
-				captureModule = captureAssembly.DefineDynamicModule(name);
-				captureAssemblyFilename = filename;
-			}
-		}
+		// [JA] - commented out these methods as they don't compile and they're not used
+		//[ResourceExposure(ResourceScope.Machine)] // filename parameter later used by other methods.
+		//internal static void StartCaptureToFile(string filename)
+		//{
+		//	if(captureAssembly == null)
+		//	{
+		//		string dir = System.IO.Path.GetDirectoryName(filename);
+		//		if(dir.Length == 0) dir = null;
+		//		string name = System.IO.Path.GetFileName(filename);
+		//		AssemblyName assemblyName = new AssemblyName(System.IO.Path.GetFileNameWithoutExtension(name));
+		//		captureAssembly = AppDomain.CurrentDomain.DefineDynamicAssembly(assemblyName, AssemblyBuilderAccess.Save, dir);
+		//		captureModule = captureAssembly.DefineDynamicModule(name);
+		//		captureAssemblyFilename = filename;
+		//	}
+		//}
 
-		[ResourceExposure(ResourceScope.None)] // Exposure is via StartCaptureToFile method.
-		[ResourceConsumption(ResourceScope.Machine, ResourceScope.Machine)] // Assembly.Save method call.
-		internal static void StopCapture()
-		{
-			if(captureAssembly != null)
-			{
-				captureAssembly.Save(captureAssemblyFilename);
-				captureAssembly = null;
-			}
-		}
+		//[ResourceExposure(ResourceScope.None)] // Exposure is via StartCaptureToFile method.
+		//[ResourceConsumption(ResourceScope.Machine, ResourceScope.Machine)] // Assembly.Save method call.
+		//internal static void StopCapture()
+		//{
+		//	if(captureAssembly != null)
+		//	{
+		//		captureAssembly.Save(captureAssemblyFilename);
+		//		captureAssembly = null;
+		//	}
+		//}
 
 		internal static void SetMaxReaderCacheSize(int size)
 		{
@@ -196,7 +197,8 @@ namespace System.Data.Linq.Provider.Common
 				new Type[] { typeof(ObjectMaterializer<>).MakeGenericType(this.dataReaderType) }
 				);
 			gen.GenerateBody(mb.GetILGenerator(), (SqlExpression)SqlDuplicator.Copy(expression));
-			tb.CreateType();
+			// [JA] - changed to CreateTypeInfo
+			tb.CreateTypeInfo();
 		}
 #endif
 
