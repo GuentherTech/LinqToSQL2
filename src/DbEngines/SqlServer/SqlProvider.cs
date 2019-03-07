@@ -32,6 +32,7 @@ namespace System.Data.Linq.DbEngines.SqlServer
 	{
 		// [JA] added hook for better logging
 		public static Action<IDbCommand> CommandExecuting;
+		public static Func<string, DbProviderFactory> ProviderFactoryFetcher = name => SqlClientFactory.Instance;
 
 #warning REFACTORING CANDIDATE FOR #23
 		#region Class Members
@@ -201,7 +202,7 @@ namespace System.Data.Linq.DbEngines.SqlServer
 		private static DbProviderFactory GetProvider(string providerName)
 		{
 #warning [JA] Temporary fix. We need to support SQL CE as well.
-			return SqlClientFactory.Instance;
+			return ProviderFactoryFetcher(providerName);
 			//bool hasProvider =
 			//	DbProviderFactories.GetFactoryClasses().Rows.OfType<DataRow>()
 			//	.Select(r => (string)r["InvariantName"])
