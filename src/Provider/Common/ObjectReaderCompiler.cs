@@ -107,8 +107,9 @@ namespace System.Data.Linq.Provider.Common
 			this.dataReaderType = dataReaderType;
 			this.services = services;
 
-			this.miDRisDBNull = dataReaderType.GetMethod("IsDBNull", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
-			this.miBRisDBNull = typeof(DbDataReader).GetMethod("IsDBNull", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+			// [JA] - added parameter types to avoid ambiguous match error
+			this.miDRisDBNull = dataReaderType.GetMethod("IsDBNull", new Type[] { typeof (int) });
+			this.miBRisDBNull = typeof(DbDataReader).GetMethod("IsDBNull", new Type[] { typeof (int) });
 
 			Type orbType = typeof(ObjectMaterializer<>).MakeGenericType(this.dataReaderType);
 			this.ordinalsField = orbType.GetField("Ordinals", BindingFlags.Instance | BindingFlags.Public);
