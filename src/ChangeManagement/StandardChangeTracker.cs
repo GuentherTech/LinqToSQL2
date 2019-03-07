@@ -763,6 +763,11 @@ namespace System.Data.Linq
 						}
 						object baseline = mm.MemberAccessor.GetBoxedValue(this.original);
 						object currentValue = mm.MemberAccessor.GetBoxedValue(this.current);
+						
+						// [JA] fixed bug in DateTimeOffset comparison
+						if (baseline is DateTimeOffset dto1 && currentValue is DateTimeOffset dto2)
+							return !dto1.EqualsExact (dto2);
+
 						if(!object.Equals(currentValue, baseline))
 						{
 							return true;
