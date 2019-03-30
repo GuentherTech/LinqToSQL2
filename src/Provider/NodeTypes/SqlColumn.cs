@@ -23,7 +23,8 @@ namespace System.Data.Linq.Provider.NodeTypes
 			if (sqlType == null)
 				throw Error.ArgumentNull("sqlType");
 			this.sqlType = sqlType;
-			System.Diagnostics.Debug.Assert(sqlType.CanBeColumn);
+			//[JA] - removed so we can support spatial types
+			//System.Diagnostics.Debug.Assert(sqlType.CanBeColumn);
 			}
 
 		internal SqlColumn(string name, SqlExpression expr)
