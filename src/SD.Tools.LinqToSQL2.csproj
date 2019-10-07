@@ -5,9 +5,8 @@
     <RootNamespace>System.Data.Linq</RootNamespace>
     <Version>1.0</Version>
     <AssemblyVersion>1.0.0.0</AssemblyVersion>
-    <SignAssembly>true</SignAssembly>
-    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-    <Authors>Solutions Design bv</Authors>
+		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <Authors>Solutions Design bv, LINQPad</Authors>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
     <PackageLicenseUrl></PackageLicenseUrl>
     <PackageProjectUrl></PackageProjectUrl>
@@ -16,9 +15,13 @@
     <PackageIconUrl></PackageIconUrl>
     <DocumentationFile></DocumentationFile>
   </PropertyGroup>
+	<PropertyGroup Condition="Exists('..\..\..\source.s\LINQPad\LINQPad.snk')" >
+		<SignAssembly>true</SignAssembly>
+		<AssemblyOriginatorKeyFile>..\..\..\source.s\LINQPad\LINQPad.snk</AssemblyOriginatorKeyFile>
+	</PropertyGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
     <PackageReference Include="System.Security.Permissions">
-      <Version>4.4.1</Version>
+      <Version>4.6.0</Version>
     </PackageReference>
   </ItemGroup>
   <ItemGroup Condition=" '$(TargetFramework)' == 'net452'">
@@ -30,9 +33,9 @@
     <Compile Remove="bin" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="System.Data.SqlClient" Version="4.5.1" />
-    <PackageReference Include="System.Reflection.Emit" Version="4.3.0" />
-    <PackageReference Include="System.Reflection.Emit.ILGeneration" Version="4.3.0" />
-    <PackageReference Include="System.Reflection.Emit.Lightweight" Version="4.3.0" />
+    <PackageReference Include="System.Data.SqlClient" Version="4.7.0" />
+    <PackageReference Include="System.Reflection.Emit" Version="4.6.0" />
+    <PackageReference Include="System.Reflection.Emit.ILGeneration" Version="4.6.0" />
+    <PackageReference Include="System.Reflection.Emit.Lightweight" Version="4.6.0" />
   </ItemGroup>
 </Project>
