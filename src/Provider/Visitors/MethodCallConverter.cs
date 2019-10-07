@@ -342,7 +342,8 @@ namespace System.Data.Linq.Provider.Visitors
 		private static bool IsVbCompareString(SqlMethodCall call)
 		{
 			return call.Method.IsStatic && (call.Method.DeclaringType!=null) &&
-				call.Method.DeclaringType.FullName == "Microsoft.VisualBasic.CompilerServices.Operators" &&
+				(call.Method.DeclaringType.FullName == "Microsoft.VisualBasic.CompilerServices.Operators" ||
+				 call.Method.DeclaringType.FullName == "Microsoft.VisualBasic.CompilerServices.EmbeddedOperators") &&
 				call.Method.Name == "CompareString";
 		}
 
