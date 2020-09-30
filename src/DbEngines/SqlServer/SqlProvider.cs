@@ -30,9 +30,10 @@ namespace System.Data.Linq.DbEngines.SqlServer
 	[SuppressMessage("Microsoft.Maintainability", "CA1506:AvoidExcessiveClassCoupling", Justification = "Unknown reason.")]
 	public class SqlProvider : IReaderProvider, IConnectionUser
 	{
-		// [JA] added hook for better logging
-		public static Action<IDbCommand> CommandExecuting;
-		public static Func<string, DbProviderFactory> ProviderFactoryFetcher = name => SqlClientFactory.Instance;
+		// [JA] added hooks
+		public static Action<IDbCommand> CommandExecuting;   // [JA] for better logging
+		public static Func<string, DbProviderFactory> ProviderFactoryFetcher = name => SqlClientFactory.Instance;    // [JA] for SQL CE support
+		public static Action<DbConnection> OpenConnection = cx => cx.Open ();    // [JA] to allow automatic recovery after invalid MFA token
 
 #warning REFACTORING CANDIDATE FOR #23
 		#region Class Members

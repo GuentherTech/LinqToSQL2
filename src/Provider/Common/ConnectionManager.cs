@@ -12,6 +12,7 @@ using System.Transactions;
 
 namespace System.Data.Linq.Provider.Common {
     using System.Data.Linq;
+	using System.Data.Linq.DbEngines.SqlServer;
 
 	internal class ConnectionManager : IConnectionManager {
         private IProvider provider;
@@ -37,7 +38,9 @@ namespace System.Data.Linq.Provider.Common {
                 throw Error.ArgumentNull("user");
             }
             if (this.connection.State == ConnectionState.Closed) {
-                this.connection.Open();
+                // [JA]
+                //this.connection.Open();
+                SqlProvider.OpenConnection(this.connection);
                 this.autoClose = true;
                 this.AddInfoMessageHandler();
                 if (System.Transactions.Transaction.Current != null) {

@@ -578,7 +578,9 @@ namespace System.Data.Linq
 						}
 						if(this._provider.Connection.State == ConnectionState.Closed)
 						{
-							this._provider.Connection.Open();
+							// [JA]
+							//this._provider.Connection.Open();
+							DbEngines.SqlServer.SqlProvider.OpenConnection(this._provider.Connection);
 							openedConnection = true;
 						}
 						transaction = this._provider.Connection.BeginTransaction(IsolationLevel.ReadCommitted);
