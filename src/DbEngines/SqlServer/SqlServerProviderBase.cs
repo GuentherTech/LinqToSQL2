@@ -415,6 +415,7 @@ namespace System.Data.Linq.DbEngines.SqlServer
 				case SqlDbType.Real:
 				case SqlDbType.Float:
 					return From(typeof(double));
+				// Don't need special handling for .NET 6 DateOnly/TimeOnly because this is used only for Sum/Avg/StdDev
 				case SqlDbType.Date:
 				case SqlDbType.Time:
 				case SqlDbType.SmallDateTime:
@@ -590,6 +591,10 @@ namespace System.Data.Linq.DbEngines.SqlServer
 		[SuppressMessage("Microsoft.Performance", "CA1800:DoNotCastUnnecessarily", Justification = "[....]: Cast is dependent on node type and casts do not happen unecessarily in a single code path.")]
 		internal override ProviderType GetBestType(ProviderType typeA, ProviderType typeB)
 		{
+#if NET6_0
+			// Shouldn't need special handling for DateOnly/TimeOnly
+#endif
+
 			// first determine the type precedence
 			SqlType bestType = (SqlType)(typeA.ComparePrecedenceTo(typeB) > 0 ? typeA : typeB);
 

@@ -340,6 +340,16 @@ namespace System.Data.Linq.DbEngines.SqlServer
 							{
 								sb.Append("Time");
 							}
+#if NET6_0
+							else if (type == typeof (DateOnly))
+							{
+								sb.Append ("Date");
+							}
+							else if (type == typeof (TimeOnly))
+							{
+								sb.Append ("Time");
+							}
+#endif
 							else
 							{
 								throw Error.CouldNotDetermineSqlType(type);

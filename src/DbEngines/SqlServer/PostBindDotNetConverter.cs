@@ -10,6 +10,7 @@ using System.Text;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Data.Linq.SqlClient;
+using System.Linq;
 
 namespace System.Data.Linq.DbEngines.SqlServer
 {
@@ -66,6 +67,16 @@ namespace System.Data.Linq.DbEngines.SqlServer
 			{
 				return IsSupportedDateTimeNew(snew);
 			}
+#if NET6_0
+			else if(snew.ClrType == typeof (DateOnly))
+			{
+				return IsSupportedDateOnlyNew(snew);
+			}
+			else if (snew.ClrType == typeof (TimeOnly))
+			{
+				return IsSupportedTimeOnlyNew(snew);
+			}
+#endif
 			return false;
 		}
 
@@ -102,6 +113,51 @@ namespace System.Data.Linq.DbEngines.SqlServer
 			return false;
 		}
 
+#if NET6_0
+		private static bool IsSupportedDateOnlyNew (SqlNew sox)
+		{
+			if (sox.ClrType == typeof (DateOnly)
+				&& sox.Args.Count >= 3
+				&& sox.Args[0].ClrType == typeof (int)
+				&& sox.Args[1].ClrType == typeof (int)
+				&& sox.Args[2].ClrType == typeof (int))
+			{
+				if (sox.Args.Count == 3)
+				{
+					return true;
+				}				
+			}
+			return false;
+		}
+
+		private static bool IsSupportedTimeOnlyNew (SqlNew sox)
+		{
+			if (sox.ClrType == typeof (TimeOnly)
+				&& sox.Args.Count >= 2
+				&& sox.Args[0].ClrType == typeof (int)
+				&& sox.Args[1].ClrType == typeof (int))
+			{
+				if (sox.Args.Count == 2)
+				{
+					return true;
+				}
+				if (sox.Args.Count >= 3 &&
+					sox.Args[2].ClrType == typeof (int))
+				{
+					if (sox.Args.Count == 3)
+					{
+						return true;
+					}
+					if ((sox.Args.Count == 4) && (sox.Args[3].ClrType == typeof (int)))
+					{
+						return true;
+					}
+				}
+			}
+			return false;
+		}
+#endif
+
 		private static bool IsSupportedTimeSpanNew(SqlNew sox)
 		{
 			if(sox.Args.Count == 1)
@@ -126,6 +182,24 @@ namespace System.Data.Linq.DbEngines.SqlServer
 			return false;
 		}
 
+#if NET6_0
+		static bool IsDateOnlyExtractionMethod (SqlMethodCall mc) =>
+			mc.Arguments.Count == 1 &&
+			mc.Arguments[0].ClrType is var fromType && (fromType == typeof (DateTime) || fromType == typeof (DateTime?)) &&
+			(
+				mc.Method.Name == "DateOnly" && mc.Method.DeclaringType == typeof (LinqToSqlExtensions) ||
+				mc.Method.Name == "FromDateTime" && mc.Method.DeclaringType == typeof (DateOnly)
+			);
+
+		static bool IsTimeOnlyExtractionMethod (SqlMethodCall mc) =>
+			mc.Arguments.Count == 1 &&
+			mc.Arguments[0].ClrType is var fromType && (fromType == typeof (DateTime) || fromType == typeof (DateTime?)) &&
+			(
+				mc.Method.Name == "TimeOnly" && mc.Method.DeclaringType == typeof (LinqToSqlExtensions) ||
+				mc.Method.Name == "FromDateTime" && mc.Method.DeclaringType == typeof (TimeOnly)
+			);
+#endif
+
 		private static MethodSupport GetMethodSupport(SqlMethodCall mc)
 		{
 			// Get support level for each, returning the highest
@@ -140,6 +214,23 @@ namespace System.Data.Linq.DbEngines.SqlServer
 			{
 				best = ms;
 			}
+#if NET6_0
+			ms = GetDateOnlyMethodSupport (mc);
+			if (ms > best)
+			{
+				best = ms;
+			}
+			ms = GetTimeOnlyMethodSupport (mc);
+			if (ms > best)
+			{
+				best = ms;
+			}
+
+			if (IsDateOnlyExtractionMethod (mc) || IsTimeOnlyExtractionMethod (mc))
+			{
+				best = MethodSupport.Method;
+            }
+#endif
 			ms = GetDateTimeOffsetMethodSupport(mc);
 			if(ms > best)
 			{
@@ -326,6 +417,48 @@ namespace System.Data.Linq.DbEngines.SqlServer
 			}
 			return MethodSupport.None;
 		}
+
+#if NET6_0
+		private static MethodSupport GetDateOnlyMethodSupport (SqlMethodCall mc)
+		{
+			if (!mc.Method.IsStatic && mc.Method.DeclaringType == typeof (DateOnly))
+			{
+				switch (mc.Method.Name)
+				{
+					case "CompareTo":
+					case "AddDays":
+					case "AddMonths":
+					case "AddYears":
+						return MethodSupport.Method;
+				}
+			}
+			return MethodSupport.None;
+		}
+
+		private static MethodSupport GetTimeOnlyMethodSupport (SqlMethodCall mc)
+		{
+			if (!mc.Method.IsStatic && mc.Method.DeclaringType == typeof (TimeOnly))
+			{
+				switch (mc.Method.Name)
+				{
+					case "CompareTo":
+					case "AddMinutes":
+					case "AddHours":
+						return MethodSupport.Method;
+					case "Add":
+						if (mc.Arguments.Count == 1 && mc.Arguments[0].ClrType == typeof (TimeSpan))
+						{
+							return MethodSupport.Method;
+						}
+						else
+						{
+							return MethodSupport.MethodGroup;
+						}
+				}
+			}
+			return MethodSupport.None;
+		}
+#endif
 
 		private static MethodSupport GetDateTimeOffsetMethodSupport(SqlMethodCall mc)
 		{
@@ -635,6 +768,10 @@ namespace System.Data.Linq.DbEngines.SqlServer
 			return IsSupportedStringMember(m)
 				|| IsSupportedBinaryMember(m)
 				|| IsSupportedDateTimeMember(m)
+#if NET6_0
+				|| IsSupportedDateOnlyMember(m)
+				|| IsSupportedTimeOnlyMember (m)
+#endif
 				|| IsSupportedDateTimeOffsetMember(m)
 				|| IsSupportedTimeSpanMember(m);
 		}
@@ -711,6 +848,30 @@ namespace System.Data.Linq.DbEngines.SqlServer
 			return false;
 		}
 
+#if NET6_0
+		static string GetDateOnlyPart (string memberName) => memberName is "Day" or "Month" or "Year" or "DayOfYear" ? memberName : null;
+
+		static string GetTimeOnlyPart (string memberName) => memberName is "Hour" or "Minute" or "Second" or "Millisecond" ? memberName : null;
+
+		private static bool IsSupportedDateOnlyMember (SqlMember m)
+		{
+			if (m.Expression.ClrType == typeof (DateOnly))
+			{
+				return GetDateOnlyPart (m.Member.Name) != null || m.Member.Name is "DayOfWeek";
+			}
+			return false;
+		}
+
+		private static bool IsSupportedTimeOnlyMember (SqlMember m)
+		{
+			if (m.Expression.ClrType == typeof (DateTime))
+			{
+				return GetTimeOnlyPart (m.Member.Name) != null;
+			}
+			return false;
+		}
+#endif
+
 		private static bool IsSupportedTimeSpanMember(SqlMember m)
 		{
 			if(m.Expression.ClrType == typeof(TimeSpan))
@@ -779,6 +940,9 @@ namespace System.Data.Linq.DbEngines.SqlServer
 				Type leftType = TypeSystem.GetNonNullableType(bo.Left.ClrType);
 				if(leftType == typeof(DateTime) || leftType == typeof(DateTimeOffset))
 				{
+#if NET6_0
+					// Don't need special handling for DateOnly/TimeOnly because these types don't support binary operations in .NET
+#endif
 					return this.TranslateDateTimeBinary(bo);
 				}
 				return bo;
@@ -836,6 +1000,16 @@ namespace System.Data.Linq.DbEngines.SqlServer
 				{
 					return TranslateNewDateTimeOffset(sox);
 				}
+#if NET6_0
+				else if (sox.ClrType == typeof (DateOnly))
+				{
+					return TranslateNewDateOnly (sox);
+				}
+				else if (sox.ClrType == typeof (TimeOnly))
+				{
+					return TranslateNewTimeOnly (sox);
+				}
+#endif
 				return sox;
 			}
 
@@ -1000,6 +1174,90 @@ namespace System.Data.Linq.DbEngines.SqlServer
 				throw Error.UnsupportedDateTimeOffsetConstructorForm();
 			}
 
+#if NET6_0
+			private SqlExpression TranslateNewDateOnly (SqlNew sox)
+			{
+				Expression source = sox.SourceExpression;
+
+				// Date(int year, int month, int day) 
+				// --> CONVERT(DATE, CONVERT(nchar(2),@month) + '/' + CONVERT(nchar(2),@day) + '/' + CONVERT(nchar(4),@year),101)
+				if (sox.ClrType == typeof (DateOnly) && sox.Args.Count == 3 &&
+					sox.Args[0].ClrType == typeof (int) && sox.Args[1].ClrType == typeof (int) && sox.Args[2].ClrType == typeof (int))
+				{
+					SqlExpression char2 = sql.FunctionCall (typeof (void), "NCHAR", new SqlExpression[1] { sql.ValueFromObject (2, false, source) }, source);
+					SqlExpression char4 = sql.FunctionCall (typeof (void), "NCHAR", new SqlExpression[1] { sql.ValueFromObject (4, false, source) }, source);
+					
+					SqlExpression year = sql.FunctionCall (typeof (string), "CONVERT", new SqlExpression[2] { char4, sox.Args[0] }, source);
+					SqlExpression month = sql.FunctionCall (typeof (string), "CONVERT", new SqlExpression[2] { char2, sox.Args[1] }, source);
+					SqlExpression day = sql.FunctionCall (typeof (string), "CONVERT", new SqlExpression[2] { char2, sox.Args[2] }, source);
+					SqlExpression dateType = new SqlVariable (typeof (void), null, "DATE", source);
+					SqlExpression date = sql.Concat (month, sql.ValueFromObject ("/", false, source), day, sql.ValueFromObject ("/", false, source), year);
+					return sql.FunctionCall (typeof (DateOnly), "CONVERT", new SqlExpression[3] { dateType, date, sql.ValueFromObject (101, false, source) }, source);
+				}
+				throw Error.UnsupportedDateOnlyConstructorForm ();
+			}
+
+			private SqlExpression TranslateNewTimeOnly (SqlNew sox)
+			{
+				Expression source = sox.SourceExpression;
+
+				// Time(int year, int month, int day) 
+				// --> CONVERT(TIME, CONVERT(nchar(2),@hour) + ':' + CONVERT(nchar(2),@minute) + ':' + CONVERT(nchar(2),@second)  ,120)
+				if (sox.ClrType == typeof (TimeOnly) && sox.Args.Count is >= 2 and <= 4 && sox.Args.All (a => a.ClrType == typeof (int)))
+				{
+					SqlExpression char2 = sql.FunctionCall (typeof (void), "NCHAR", new SqlExpression[1] { sql.ValueFromObject (2, false, source) }, source);
+					SqlExpression timeType = new SqlVariable (typeof (void), null, "TIME", source);
+
+					SqlExpression hour = sql.FunctionCall (typeof (string), "CONVERT", new SqlExpression[2] { char2, sox.Args[0] }, source);
+					SqlExpression minute = sql.FunctionCall (typeof (string), "CONVERT", new SqlExpression[2] { char2, sox.Args[1] }, source);
+					if (sox.Args.Count == 2)
+						return sql.FunctionCall (typeof (TimeOnly), "CONVERT", new SqlExpression[3]
+						{
+							timeType,
+							sql.Concat (hour, sql.ValueFromObject (":", false, source), minute),
+							sql.ValueFromObject (120, false, source)
+						}, source);				
+
+					SqlExpression second = sql.FunctionCall (typeof (string), "CONVERT", new SqlExpression[2] { char2, sox.Args[2] }, source);
+					
+					if (sox.Args.Count == 3)
+						return sql.FunctionCall (typeof (TimeOnly), "CONVERT", new SqlExpression[3]
+						{
+							timeType,
+							sql.Concat (hour, sql.ValueFromObject (":", false, source), minute, sql.ValueFromObject (":", false, source), second),
+							sql.ValueFromObject (120, false, source)
+						}, source);
+
+					// Time(hour, minute, second, millisecond ) 
+					// add leading zeros to milliseconds by RIGHT(CONVERT(NCHAR(4),1000+@ms),3) 
+					SqlExpression char4 = sql.FunctionCall (typeof (void), "NCHAR", new SqlExpression[1] { sql.ValueFromObject (4, false, source) }, source);
+
+					SqlExpression msRaw = sql.FunctionCall (typeof (string), "CONVERT", new SqlExpression[2] {char4,
+									   sql.Add(sql.ValueFromObject(1000, false, source),sox.Args[3])}, source);
+					SqlExpression ms;
+					if (this.providerMode == SqlServerProviderMode.SqlCE)
+					{
+						//SqlCE doesn't have "RIGHT", so need to use "SUBSTRING"
+						SqlExpression len = sql.FunctionCall (typeof (int), "LEN", new SqlExpression[1] { msRaw }, source);
+						SqlExpression startIndex = sql.Binary (SqlNodeType.Sub, len, sql.ValueFromObject (2, false, source));
+						ms = sql.FunctionCall (typeof (string), "SUBSTRING", new SqlExpression[3] { msRaw, startIndex, sql.ValueFromObject (3, false, source) }, source);
+					}
+					else
+					{
+						ms = sql.FunctionCall (typeof (string), "RIGHT", new SqlExpression[2] { msRaw, sql.ValueFromObject (3, false, source) }, source);
+					}
+					return sql.FunctionCall (typeof (TimeOnly), "CONVERT", new SqlExpression[3] 
+					{
+						timeType,
+						sql.Concat (hour, sql.ValueFromObject (":", false, source), minute, sql.ValueFromObject (":", false, source), second, sql.ValueFromObject ('.', false, source), ms),
+						sql.ValueFromObject (121, false, source)
+					}, source);
+
+				}
+				throw Error.UnsupportedTimeOnlyConstructorForm ();
+			}
+#endif
+
 			private SqlExpression TranslateNewTimeSpan(SqlNew sox)
 			{
 				if(sox.Args.Count == 1)
@@ -1099,9 +1357,21 @@ namespace System.Data.Linq.DbEngines.SqlServer
 					{
 						return TranslateVbLikeString(mc);
 					}
+#if NET6_0
+					else if (IsDateOnlyExtractionMethod (mc))
+					{
+						SqlExpression date = new SqlVariable (typeof (void), null, "DATE", source);
+						returnValue = sql.FunctionCall (typeof (DateOnly), "CONVERT", new SqlExpression[2] { date, mc.Arguments[0] }, source);
+					}
+					else if (IsTimeOnlyExtractionMethod (mc))
+					{
+						SqlExpression date = new SqlVariable (typeof (void), null, "TIME", source);
+						returnValue = sql.FunctionCall (typeof (TimeOnly), "CONVERT", new SqlExpression[2] { date, mc.Arguments[0] }, source);
+					}
+#endif
 
 					//Recognized pattern has set return value so return
-					if(returnValue != null)
+					if (returnValue != null)
 					{
 						// Assert here to verify that actual translation stays in [....] with
 						// method support logic
@@ -1145,7 +1415,17 @@ namespace System.Data.Linq.DbEngines.SqlServer
 					{
 						returnValue = TranslateDateTimeOffsetInstanceMethod(mc);
 					}
-					if(returnValue != null)
+#if NET6_0
+					else if (declType == typeof (DateOnly))
+					{
+						returnValue = TranslateDateOnlyInstanceMethod (mc);
+					}
+					else if (declType == typeof (TimeOnly))
+					{
+						returnValue = TranslateTimeOnlyInstanceMethod (mc);
+					}
+#endif
+					if (returnValue != null)
 					{
 						// Assert here to verify that actual translation stays in [....] with
 						// method support logic
@@ -1380,6 +1660,77 @@ namespace System.Data.Linq.DbEngines.SqlServer
 				}
 				return returnValue;
 			}
+
+#if NET6_0
+			private SqlExpression TranslateDateOnlyInstanceMethod (SqlMethodCall mc)
+			{
+				SqlExpression returnValue = null;
+				Expression source = mc.SourceExpression;
+				if (mc.Method.Name == "CompareTo")
+				{
+					returnValue = CreateComparison (mc.Object, mc.Arguments[0], source);
+				}
+				else if (mc.Method.Name == "AddMonths")
+				{
+					// date + m --> DATEADD(month, @m, @date)
+					returnValue = sql.FunctionCallDateAdd ("MONTH", mc.Arguments[0], mc.Object);
+				}
+				else if (mc.Method.Name == "AddYears")
+				{
+					// date + y --> DATEADD(year, @y, @date)
+					returnValue = sql.FunctionCallDateAdd ("YEAR", mc.Arguments[0], mc.Object);
+				}
+				else if (mc.Method.Name == "AddDays")
+				{
+					returnValue = sql.FunctionCallDateAdd ("DAY", mc.Arguments[0], mc.Object);
+				}
+				return returnValue;
+			}
+
+			private SqlExpression TranslateTimeOnlyInstanceMethod (SqlMethodCall mc)
+			{
+				SqlExpression returnValue = null;
+				Expression source = mc.SourceExpression;
+				if (mc.Method.Name == "CompareTo")
+				{
+					returnValue = CreateComparison (mc.Object, mc.Arguments[0], source);
+				}
+				else if ((mc.Method.Name == "Add" && mc.Arguments.Count == 1 && mc.Arguments[0].ClrType == typeof (TimeSpan)))
+				{
+					// 
+					SqlExpression sqlTicks = mc.Arguments[0];
+					if (sql.IsTimeType (mc.Arguments[0]))
+					{
+						SqlExpression ns = this.sql.FunctionCallDatePart ("NANOSECOND", mc.Arguments[0]);
+						SqlExpression ss = this.sql.FunctionCallDatePart ("SECOND", mc.Arguments[0]);
+						SqlExpression mm = this.sql.FunctionCallDatePart ("MINUTE", mc.Arguments[0]);
+						SqlExpression hh = this.sql.FunctionCallDatePart ("HOUR", mc.Arguments[0]);
+						sqlTicks = sql.Add (
+									 sql.Divide (ns, 100),
+									 sql.Multiply (
+										 sql.Add (
+											 sql.Multiply (sql.ConvertToBigint (hh), 3600000),
+											 sql.Multiply (sql.ConvertToBigint (mm), 60000),
+											 sql.Multiply (sql.ConvertToBigint (ss), 1000)
+										 ),
+										 10000)
+									 );
+					}
+					return this.CreateTimeOnlyFromTimeAndTicks (mc.Object, sqlTicks, source);
+				}
+				else if (mc.Method.Name == "AddMinutes")
+				{
+					SqlExpression ms = sql.Multiply (mc.Arguments[0], 60000);
+					returnValue = this.CreateTimeOnlyFromTimeAndMs (mc.Object, ms, source);
+				}
+				else if (mc.Method.Name == "AddHours")
+				{
+					SqlExpression ms = sql.Multiply (mc.Arguments[0], 3600000);
+					returnValue = this.CreateTimeOnlyFromTimeAndMs (mc.Object, ms, source);
+				}
+				return returnValue;
+			}
+#endif
 
 			private SqlExpression TranslateTimeSpanInstanceMethod(SqlMethodCall mc)
 			{
@@ -1690,7 +2041,7 @@ namespace System.Data.Linq.DbEngines.SqlServer
 			{
 				SqlExpression returnValue = null;
 				Expression source = mc.SourceExpression;
-				#region String Methods
+#region String Methods
 				if(mc.Method.Name == "Concat")
 				{
 					SqlClientArray arr = mc.Arguments[0] as SqlClientArray;
@@ -1740,7 +2091,7 @@ namespace System.Data.Linq.DbEngines.SqlServer
 				{
 					returnValue = CreateComparison(mc.Arguments[0], mc.Arguments[1], source);
 				}
-				#endregion
+#endregion
 				throw GetMethodSupportException(mc);
 				//return returnValue;
 			}
@@ -2522,6 +2873,36 @@ namespace System.Data.Linq.DbEngines.SqlServer
 				{
 					return sql.FunctionCallDataLength(exp);
 				}
+#if NET6_0
+				else if (baseClrTypeOfExpr == typeof(DateOnly))
+                {
+					if (GetDateOnlyPart (m.Member.Name) != null)
+					{
+						return sql.FunctionCallDatePart (m.Member.Name, exp);
+					}
+					else if (member.Name == "DayOfWeek")
+					{
+						//(DATEPART(dw,@date) + @@Datefirst + 6) % 7 to make it independent from SQL settings
+						SqlExpression sqlDay = sql.FunctionCallDatePart ("dw", exp);
+
+						// 
+						// .DayOfWeek returns a System.DayOfWeek, so ConvertTo that enum.
+						return sql.ConvertTo (typeof (DayOfWeek),
+								sql.Mod (
+								  sql.Add (sqlDay,
+									 sql.Add (new SqlVariable (typeof (int), sql.Default (typeof (int)), "@@DATEFIRST", source), 6)
+								  )
+								, 7));
+					}
+				}
+				else if (baseClrTypeOfExpr == typeof (TimeOnly))
+				{
+					if (GetTimeOnlyPart (m.Member.Name) != null)
+					{
+						return sql.FunctionCallDatePart (m.Member.Name, exp);
+					}
+				}
+#endif
 				else if(baseClrTypeOfExpr == typeof(DateTime) || baseClrTypeOfExpr == typeof(DateTimeOffset))
 				{
 					string datePart = GetDatePart(member.Name);
@@ -2715,6 +3096,13 @@ namespace System.Data.Linq.DbEngines.SqlServer
 				return sql.FunctionCallDateAdd("ms", sql.Mod(sql.Divide(sqlTicks, TimeSpan.TicksPerMillisecond), 86400000), daysAdded, source, asNullable);
 			}
 
+#if NET6_0
+			SqlExpression CreateTimeOnlyFromTimeAndTicks (SqlExpression sqlTime, SqlExpression sqlTicks, Expression source, bool asNullable = false)
+			{
+				return sql.FunctionCallTimeOnlyAdd ("ms", sql.Mod (sql.Divide (sqlTicks, TimeSpan.TicksPerMillisecond), 86400000), sqlTime, source, asNullable);
+			}
+#endif
+
 			// date + ms --> DATEADD( day, @ms/86400000, DATEADD(ms, @ms % 86400000 , @date))
 			private SqlExpression CreateDateTimeFromDateAndMs(SqlExpression sqlDate, SqlExpression ms, Expression source)
 			{
@@ -2727,6 +3115,14 @@ namespace System.Data.Linq.DbEngines.SqlServer
 				SqlExpression daysAdded = sql.FunctionCallDateAdd("day", sql.Divide(msBigint, 86400000), sqlDate, source, asNullable);
 				return sql.FunctionCallDateAdd("ms", sql.Mod(msBigint, 86400000), daysAdded, source, asNullable);
 			}
+
+#if NET6_0
+			SqlExpression CreateTimeOnlyFromTimeAndMs (SqlExpression sqlTime, SqlExpression ms, Expression source, bool asNullable = false)
+			{
+				SqlExpression msBigint = sql.ConvertToBigint (ms);
+				return sql.FunctionCallTimeOnlyAdd ("ms", sql.Mod (msBigint, 86400000), sqlTime, source, asNullable);
+			}			
+#endif
 
 			// date + timespan --> DATEADD( day, @timespan/864000000000, DATEADD(ms,(@timespan/1000) % 86400000 , @date))
 			private SqlExpression CreateDateTimeOffsetFromDateAndTicks(SqlExpression sqlDate, SqlExpression sqlTicks, Expression source)

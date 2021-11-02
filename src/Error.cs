@@ -588,6 +588,16 @@ namespace System.Data.Linq
 		{
 			return new NotSupportedException(Strings.UnsupportedDateTimeOffsetConstructorForm);
 		}
+#if NET6_0
+		internal static Exception UnsupportedDateOnlyConstructorForm ()
+		{
+			return new NotSupportedException (Strings.UnsupportedDateOnlyConstructorForm);
+		}
+		internal static Exception UnsupportedTimeOnlyConstructorForm ()
+		{
+			return new NotSupportedException (Strings.UnsupportedTimeOnlyConstructorForm);
+		}
+#endif
 		internal static Exception UnsupportedStringConstructorForm()
 		{
 			return new NotSupportedException(Strings.UnsupportedStringConstructorForm);

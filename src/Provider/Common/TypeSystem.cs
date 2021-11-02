@@ -217,7 +217,11 @@ namespace System.Data.Linq.Provider.Common {
                 case TypeCode.DateTime:
                     return true;
                 case TypeCode.Object:
-                    return (typeof(TimeSpan) == type) || (typeof(DateTimeOffset) == type);
+                    return (typeof(TimeSpan) == type) || (typeof(DateTimeOffset) == type)
+#if NET6_0
+                        || (typeof(DateOnly) == type) || (typeof (TimeOnly) == type)
+#endif
+                        ;
                 default:
                     return false;
             }

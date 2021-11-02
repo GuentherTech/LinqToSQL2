@@ -84,7 +84,7 @@ namespace System.Data.Linq.DbEngines.SqlServer
 		}
 
 		[SuppressMessage("Microsoft.Maintainability", "CA1502:AvoidExcessiveComplexity", Justification = "These issues are related to our use of if-then and case statements for node types, which adds to the complexity count however when reviewed they are easy to navigate and understand.")]
-		internal static Type GetClosestRuntimeType(SqlDbType sqlDbType)
+		internal static Type GetClosestRuntimeType(SqlDbType sqlDbType, bool allowNet6Types)
 		{
 			switch(sqlDbType)
 			{
@@ -94,16 +94,22 @@ namespace System.Data.Linq.DbEngines.SqlServer
 					return typeof(long);
 				case SqlDbType.Bit:
 					return typeof(bool);
-				case SqlDbType.Date:
-				case SqlDbType.SmallDateTime:
+#if NET6_0
+                case SqlDbType.Date when allowNet6Types:
+                    return typeof (DateOnly);
+                case SqlDbType.Time when allowNet6Types:
+					return typeof (TimeOnly);
+#endif
+                case SqlDbType.Date:
+                case SqlDbType.SmallDateTime:
 				case SqlDbType.DateTime:
 				case SqlDbType.DateTime2:
 					return typeof(DateTime);
 				case SqlDbType.DateTimeOffset:
 					return typeof(DateTimeOffset);
-				case SqlDbType.Time:
-					return typeof(TimeSpan);
-				case SqlDbType.Float:
+                case SqlDbType.Time:
+                    return typeof(TimeSpan);
+                case SqlDbType.Float:
 					return typeof(double);
 				case SqlDbType.Real:
 					return typeof(float);

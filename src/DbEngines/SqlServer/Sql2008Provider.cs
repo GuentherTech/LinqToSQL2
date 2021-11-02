@@ -13,10 +13,17 @@ namespace System.Data.Linq.DbEngines.SqlServer
 
 			// Retain mappings for DateTime and TimeSpan; add one for the new DateTimeOffset type.
 			//
-			if(System.Type.GetTypeCode(type) == TypeCode.Object &&
-			   type == typeof(DateTimeOffset))
+			if(System.Type.GetTypeCode(type) == TypeCode.Object)
 			{
-				return SqlTypeSystem.Create(SqlDbType.DateTimeOffset);
+				if (type == typeof (DateTimeOffset)) 
+					return SqlTypeSystem.Create(SqlDbType.DateTimeOffset);
+#if NET6_0
+				if (type == typeof (DateOnly))
+					return SqlTypeSystem.Create (SqlDbType.Date);
+
+				if (type == typeof (TimeOnly))
+					return SqlTypeSystem.Create (SqlDbType.Time);
+#endif
 			}
 
 			return base.From(type, size);

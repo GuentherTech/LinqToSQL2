@@ -351,6 +351,8 @@
 	<data name="CouldNotGetClrType" xml:space="preserve"><value>Could not get the ClrType.</value></data>
 	<data name="UnionWithHierarchy" xml:space="preserve"><value>Types in Union or Concat cannot be constructed with hierarchy.</value></data>
 	<data name="UnsupportedDateTimeOffsetConstructorForm" xml:space="preserve"><value>DateTimeOffset constructor form is not supported.</value></data>
+	<data name="UnsupportedDateOnlyConstructorForm" xml:space="preserve"><value>DateOnly constructor form is not supported.</value></data>
+	<data name="UnsupportedTimeOnlyConstructorForm" xml:space="preserve"><value>TimeOnly constructor form is not supported.</value></data>
 	<data name="CannotDeleteTypesOf" xml:space="preserve"><value>Cannot delete items of type {0}.</value></data>
 	<data name="ArgumentTypeMismatch" xml:space="preserve"><value>One or more type mismatches in argument '{0}'.</value></data>
 	<data name="UnsafeStringConversion" xml:space="preserve"><value>Unsafe string conversion from {0} to {1} may lead to implicit truncation.  Try reshaping the string explicitly with a Substring operation.</value></data>

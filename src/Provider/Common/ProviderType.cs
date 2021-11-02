@@ -29,7 +29,7 @@ namespace System.Data.Linq.Provider.Common
 		/// <summary>
 		/// Returns the CLR type which most closely corresponds to this provider type.
 		/// </summary>
-		internal abstract Type GetClosestRuntimeType();
+		internal abstract Type GetClosestRuntimeType(bool allowNet6Types = false);
 
 		/// <summary>
 		/// Compare implicit type coercion precedence.

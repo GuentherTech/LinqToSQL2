@@ -123,6 +123,12 @@ namespace System.Data.Linq {
                 else if (fromType == typeof(DateTimeOffset)) {
                     return DateTimeOffset.Parse(value.ToString(), Globalization.CultureInfo.InvariantCulture).TimeOfDay;
                 }
+#if NET6_0
+                else if (fromType == typeof (TimeOnly))
+                {
+                    return ((TimeOnly)value).ToTimeSpan ();
+                }
+#endif
                 else {
                     return new TimeSpan((long)Convert.ChangeType(value, typeof(long), Globalization.CultureInfo.InvariantCulture));
                 }
@@ -139,6 +145,10 @@ namespace System.Data.Linq {
                     DateTimeOffset dto = new DateTimeOffset();
                     return dto.Add((TimeSpan)value);
                 }
+#if NET6_0
+                else if (toType == typeof (TimeOnly))
+                    return TimeOnly.FromTimeSpan ((TimeSpan)value);
+#endif
                 else {
                     return Convert.ChangeType(((TimeSpan)value).Ticks, toType, Globalization.CultureInfo.InvariantCulture);
                 }
@@ -149,6 +159,36 @@ namespace System.Data.Linq {
             else if (toType == typeof(DateTimeOffset) && fromType == typeof(DateTime)) {
                 return new DateTimeOffset((DateTime)value);
             }
+#if NET6_0
+            else if (toType == typeof (DateTime) && fromType == typeof(DateOnly))
+            {
+                return ((DateOnly)value).ToDateTime (default);
+            }
+            else if (toType == typeof (DateOnly) && fromType == typeof (DateTime))
+            {
+                return DateOnly.FromDateTime ((DateTime)value);
+            }
+            else if (toType == typeof (TimeOnly) && fromType == typeof (DateTime))
+            {
+                return TimeOnly.FromDateTime ((DateTime)value);
+            }
+            else if (toType == typeof (DateTimeOffset) && fromType == typeof (DateOnly))
+            {
+                return new DateTimeOffset (((DateOnly)value).ToDateTime (default));
+            }
+            else if (toType == typeof (DateOnly) && fromType == typeof (DateTimeOffset))
+            {
+                return DateOnly.FromDateTime (((DateTimeOffset)value).DateTime);
+            }
+            else if (toType == typeof (TimeOnly) && fromType == typeof (DateTimeOffset))
+            {
+                return TimeOnly.FromDateTime (((DateTimeOffset)value).DateTime);
+            }
+            else if (toType == typeof (TimeOnly) && fromType == typeof (TimeSpan))
+            {
+                return TimeOnly.FromTimeSpan ((TimeSpan)value);
+            }
+#endif
             else if (toType == typeof(string) && !(typeof(IConvertible).IsAssignableFrom(fromType))) {
                 if (fromType == typeof(char[])) {
                     return new String((char[])value);

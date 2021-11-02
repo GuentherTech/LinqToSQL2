@@ -229,13 +229,13 @@ namespace System.Data.Linq.DbEngines.SqlServer
 			}
 		}
 
-		internal override Type GetClosestRuntimeType()
+		internal override Type GetClosestRuntimeType(bool allowNet6Types = false)
 		{
 			if(this.RuntimeOnlyType != null)
 			{
 				return this.RuntimeOnlyType;
 			}
-			return SqlTypeSystem.GetClosestRuntimeType(this.sqlDbType);
+			return SqlTypeSystem.GetClosestRuntimeType(this.sqlDbType, allowNet6Types);
 		}
 
 

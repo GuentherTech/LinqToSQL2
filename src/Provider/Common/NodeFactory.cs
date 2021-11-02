@@ -100,6 +100,13 @@ namespace System.Data.Linq.Provider.Common
 			return expr;
 		}
 
+#if NET6_0
+		internal virtual SqlExpression FunctionCallTimeOnlyAdd (string partName, SqlExpression value, SqlExpression expr, Expression sourceExpression, bool asNullable)
+		{
+			return expr;
+		}		
+#endif
+
 
 		/// <summary>
 		/// Creates a function call using DATETIMEOFFSETADD, with the part specified, and adds the element in value.

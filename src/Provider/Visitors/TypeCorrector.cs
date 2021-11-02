@@ -297,6 +297,9 @@ namespace System.Data.Linq.Provider.Visitors
 
 		private void CoerceTypeFamily(SqlExpression arg1, SqlExpression arg2)
 		{
+#if NET6_0
+			// This seems to already be written to handle the DateOnly (SQL DATE) type.
+#endif
 			if((arg1.SqlType.HasPrecisionAndScale && arg2.SqlType.HasPrecisionAndScale && arg1.SqlType != arg2.SqlType) ||
 			   sql.IsHighPrecisionDateTimeType(arg1) || sql.IsHighPrecisionDateTimeType(arg2))
 			{

@@ -137,6 +137,23 @@ namespace System.Data.Linq.DbEngines.SqlServer
 				);
 		}
 
+#if NET6_0
+		internal override SqlExpression FunctionCallTimeOnlyAdd (string partName, SqlExpression value, SqlExpression expr, Expression sourceExpression, bool asNullable)
+		{
+			Type returnType = asNullable ? typeof (TimeOnly?) : typeof (TimeOnly);
+
+			return FunctionCall (
+				returnType,
+				"DATEADD",
+				new SqlExpression[] {
+					new SqlVariable(typeof(void), null, partName, sourceExpression),
+					value,
+					expr },
+				sourceExpression
+				);
+		}
+#endif
+
 
 		/// <summary>
 		/// Creates a function call using DATETIMEOFFSETADD, with the part specified, and adds the element in value.

@@ -975,6 +975,10 @@ namespace System.Data.Linq
 				return SR.GetString("UnsupportedDateTimeOffsetConstructorForm");
 			}
 		}
+#if NET6_0
+		internal static string UnsupportedDateOnlyConstructorForm => SR.GetString ("UnsupportedDateOnlyConstructorForm");
+		internal static string UnsupportedTimeOnlyConstructorForm => SR.GetString ("UnsupportedTimeOnlyConstructorForm");
+#endif
 		internal static string UnsupportedStringConstructorForm
 		{
 			get

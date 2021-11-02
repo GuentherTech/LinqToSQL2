@@ -3,7 +3,6 @@ using System.Data.Linq.Provider.NodeTypes;
 
 namespace System.Data.Linq.Provider.Visitors
 {
-
 	/// <summary>
 	/// After retyping and conversions take place, some functions need to be changed into more suitable calls.
 	/// Example: LEN -> DATALENGTH for long text types.
@@ -43,7 +42,9 @@ namespace System.Data.Linq.Provider.Visitors
 				// If the return type of the sql function is not compatible with
 				// the expected CLR type of the function, inject a conversion. This
 				// step must be performed AFTER SqlRetyper has run.
-				Type clrType = resultFunctionCall.SqlType.GetClosestRuntimeType();
+				Type clrType = resultFunctionCall.SqlType.GetClosestRuntimeType(true);
+				// (We call this with true for .NET 6 so that we don't prematurely convert DateOnly and TimeOnly types).
+
 				bool skipConversion = SkipConversionForDateAdd(resultFunctionCall.Name,
 																					resultFunctionCall.ClrType,
 																					clrType);
@@ -95,6 +96,9 @@ namespace System.Data.Linq.Provider.Visitors
 			{
 				return false;
 			}
+#if NET6_0
+			// We can't convert between DateOnly and DateTimeOffset, so there should be nothing to do
+#endif
 			return (expected == typeof(DateTime) && actual == typeof(DateTimeOffset));
 		}
 	}

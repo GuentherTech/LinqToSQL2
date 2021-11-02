@@ -819,13 +819,16 @@ Expression.ArrayIndex(cpArray.Accessor.Body, Expression.Constant(vIndex.Value, v
 				case ConversionMethod.Lift:
 					if(_nodeFactory.IsDateType(expr))
 					{
+#if NET6_0
+						// This was already in place and seems to work
+#endif
 						expr = (SqlExpression)ConvertDateToDateTime2(expr);
 					}
 					return new SqlLift(type, expr, _dominatingExpression);
 				case ConversionMethod.Ignore:
 					if(_nodeFactory.IsDateType(expr))
 					{
-						return ConvertDateToDateTime2(expr);
+						return ConvertDateToDateTime2 (expr);
 					}
 					return expr;
 				case ConversionMethod.Treat:
