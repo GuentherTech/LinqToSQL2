@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.0;net452</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0;net452;net6.0</TargetFrameworks>
     <AssemblyName>SD.Tools.LinqToSQL2</AssemblyName>
     <RootNamespace>System.Data.Linq</RootNamespace>
     <Version>1.0</Version>
@@ -15,7 +15,7 @@
     <PackageIconUrl></PackageIconUrl>
     <DocumentationFile></DocumentationFile>
   </PropertyGroup>
-	<PropertyGroup Condition="Exists('..\..\..\source.s\LINQPad\LINQPad.snk')" >
+	<PropertyGroup Condition="Exists('..\..\..\source.s\LINQPad\LINQPad.snk')">
 		<SignAssembly>true</SignAssembly>
 		<AssemblyOriginatorKeyFile>..\..\..\source.s\LINQPad\LINQPad.snk</AssemblyOriginatorKeyFile>
 	</PropertyGroup>

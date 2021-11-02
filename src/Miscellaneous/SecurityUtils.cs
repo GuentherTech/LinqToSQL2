@@ -21,35 +21,35 @@ namespace System.Data.Linq
     /// </devdoc>
     internal static class SecurityUtils {
 
-        private static volatile ReflectionPermission memberAccessPermission = null;
-        private static volatile ReflectionPermission restrictedMemberAccessPermission = null;
+        //private static volatile ReflectionPermission memberAccessPermission = null;
+        //private static volatile ReflectionPermission restrictedMemberAccessPermission = null;
 
-        private static ReflectionPermission MemberAccessPermission
-        {
-            get {
-                if (memberAccessPermission == null) {
-                    memberAccessPermission = new ReflectionPermission(ReflectionPermissionFlag.MemberAccess);
-                }
-                return memberAccessPermission;
-            }
-        }
+        //private static ReflectionPermission MemberAccessPermission
+        //{
+        //    get {
+        //        if (memberAccessPermission == null) {
+        //            memberAccessPermission = new ReflectionPermission(ReflectionPermissionFlag.MemberAccess);
+        //        }
+        //        return memberAccessPermission;
+        //    }
+        //}
 
-        private static ReflectionPermission RestrictedMemberAccessPermission {
-            get {
-                if (restrictedMemberAccessPermission == null) {
-                    restrictedMemberAccessPermission = new ReflectionPermission(ReflectionPermissionFlag.RestrictedMemberAccess);
-                }
-                return restrictedMemberAccessPermission;
-            }
-        }
+        //private static ReflectionPermission RestrictedMemberAccessPermission {
+        //    get {
+        //        if (restrictedMemberAccessPermission == null) {
+        //            restrictedMemberAccessPermission = new ReflectionPermission(ReflectionPermissionFlag.RestrictedMemberAccess);
+        //        }
+        //        return restrictedMemberAccessPermission;
+        //    }
+        //}
 
         private static void DemandReflectionAccess(Type type) {
-            try {
-                MemberAccessPermission.Demand();
-            }
-            catch (SecurityException) {
-                DemandGrantSet(type.Assembly);
-            }
+            //try {
+            //    MemberAccessPermission.Demand();
+            //}
+            //catch (SecurityException) {
+            //    DemandGrantSet(type.Assembly);
+            //}
         }
 
 		// [JA] - took this out
