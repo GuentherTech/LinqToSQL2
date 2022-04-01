@@ -74,7 +74,11 @@ namespace LinqToSqlShared.Mapping {
                 type = type.GetGenericArguments()[0];
             }
             if (type == typeof(Guid) || type == typeof(DateTime) || type == typeof(DateTimeOffset) ||
-                type == typeof(TimeSpan) || type == typeof(Binary))
+                type == typeof(TimeSpan) || type == typeof(Binary)
+#if NET6_0
+                || type == typeof(DateOnly) || type == typeof(TimeOnly)
+#endif
+                )
             {
                 return true;
             }
