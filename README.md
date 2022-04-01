@@ -1,27 +1,20 @@
 Linq To SQL2
 =============
 
-Official Linq to SQL fork. A complete ORM which is backwards compatible with Linq to SQL but with new features. Please see the [Wiki](https://github.com/FransBouma/LinqToSQL2/wiki) for further information about the progress and design decisions made in this project. For the roadmap/features which are planned, please see the [issues section](https://github.com/FransBouma/LinqToSQL2/issues) for the work items. 
+A fork of Microsoft's LINQ-to-SQL, used by LINQPad 6 and later.
 
-There's no official release yet, as this project has just been started. After every new feature successfully added to the codebase, a new version will be released on Nuget. 
+This is based on [Frans Bouma's fork](https://github.com/FransBouma/LinqToSQL2/issues), which is based on the [.NET reference sourcecode](https://github.com/Microsoft/referencesource).
 
-## Does the code in 'Trunk' compile?
+It includes a number of enhancements, the most important of which is that it supports .NET Core 3.1 and later.
 
-(No CI system setup (yet), so we'll have to do with the manually written elements below)
+Other enhancements include support for .NET 6's DateOnly/TimeOnly types and the addition of hooks to allow for better logging and the implementation of new authentication schemes (such as Azure MFA).
 
-It compiles, tests succeed, but the code will be changed a lot internally before the initial compiled release (especially for #6). 
+Namespace changes introduced in [Frans Bouma's fork](https://github.com/FransBouma/LinqToSQL2/issues) have been rolled back to ensure full compatiblity with .NET Framework's version of LINQ-to-SQL.
 
-## Linq to SQL and this project
+### Target Frameworks
 
-This project is an official fork from Linq to SQL from the [.NET reference sourcecode](https://github.com/Microsoft/referencesource). As the reference source for .NET doesn't come in compilable form, the resource files for the error strings have been reverse engineered from the official System.Data.Linq assembly.
-
-This project strives to stay 100% backwards compatible with Linq to SQL's query API, so your original Linq to SQL projects will just work with Linq to SQL 2, unless stated otherwise.
+The project file includes 3 target frameworks: .NET Standard 2.0, .NET Framework 4.5.2, and .NET 6.0. The .NET 6.0 target supports DateOnly/TimeOnly types.
 
 ### License
 
 The original Linq to SQL code is (c) Microsoft Corporation (see License.txt). Additional code added is (c) by the contributors and is marked as such in the code files. 
-
-### Designer support
-
-This project will offer designer support through [LLBLGen Pro](http://www.llblgen.com)
-
