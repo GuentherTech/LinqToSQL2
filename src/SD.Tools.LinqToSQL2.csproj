@@ -15,9 +15,9 @@
     <PackageIconUrl></PackageIconUrl>
     <DocumentationFile></DocumentationFile>
   </PropertyGroup>
-	<PropertyGroup Condition="Exists('..\..\..\source.s\LINQPad\LINQPad.snk')">
+	<PropertyGroup Condition="Exists('c:\source.s\LINQPad\LINQPad.snk')">
 		<SignAssembly>true</SignAssembly>
-		<AssemblyOriginatorKeyFile>..\..\..\source.s\LINQPad\LINQPad.snk</AssemblyOriginatorKeyFile>
+		<AssemblyOriginatorKeyFile>c:\source.s\LINQPad\LINQPad.snk</AssemblyOriginatorKeyFile>
 	</PropertyGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
     <PackageReference Include="System.Security.Permissions">
@@ -33,7 +33,7 @@
     <Compile Remove="bin" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="System.Data.SqlClient" Version="4.8.5" />
+    <PackageReference Include="System.Data.SqlClient" Version="4.8.6" />
     <PackageReference Include="System.Reflection.Emit" Version="4.6.0" />
     <PackageReference Include="System.Reflection.Emit.ILGeneration" Version="4.6.0" />
     <PackageReference Include="System.Reflection.Emit.Lightweight" Version="4.6.0" />
