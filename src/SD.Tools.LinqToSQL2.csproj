@@ -1,13 +1,13 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.0;net452;net6.0</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0;net48;net8.0</TargetFrameworks>
     <AssemblyName>SD.Tools.LinqToSQL2</AssemblyName>
     <RootNamespace>System.Data.Linq</RootNamespace>
     <Version>1.0</Version>
     <AssemblyVersion>1.0.0.0</AssemblyVersion>
-		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+	<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <Authors>Solutions Design bv, LINQPad</Authors>
-    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageLicenseUrl></PackageLicenseUrl>
     <PackageProjectUrl></PackageProjectUrl>
     <PackageTags>Linq to SQL Database Data O/RM ADO.NET</PackageTags>
@@ -21,10 +21,10 @@
 	</PropertyGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
     <PackageReference Include="System.Security.Permissions">
-      <Version>4.6.0</Version>
+      <Version>8.0.0</Version>
     </PackageReference>
   </ItemGroup>
-  <ItemGroup Condition=" '$(TargetFramework)' == 'net452'">
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net48'">
     <Reference Include="System.Transactions" />
     <Reference Include="System.Configuration" />
   </ItemGroup>
@@ -34,8 +34,8 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="System.Data.SqlClient" Version="4.8.6" />
-    <PackageReference Include="System.Reflection.Emit" Version="4.6.0" />
-    <PackageReference Include="System.Reflection.Emit.ILGeneration" Version="4.6.0" />
-    <PackageReference Include="System.Reflection.Emit.Lightweight" Version="4.6.0" />
+    <PackageReference Include="System.Reflection.Emit" Version="4.7.0" />
+    <PackageReference Include="System.Reflection.Emit.ILGeneration" Version="4.7.0" />
+    <PackageReference Include="System.Reflection.Emit.Lightweight" Version="4.7.0" />
   </ItemGroup>
 </Project>

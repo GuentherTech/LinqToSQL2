@@ -42,6 +42,9 @@ namespace System.Data.Linq {
                     return new Binary(((Guid)value).ToByteArray());
                 }
                 else {
+#if NET8_0_OR_GREATER
+                    throw new NotImplementedException("Binary formatter not implemented.");
+#else
                     BinaryFormatter formatter = new BinaryFormatter();
                     byte[] streamArray;
                     using (MemoryStream stream = new MemoryStream()) {
@@ -49,6 +52,7 @@ namespace System.Data.Linq {
                         streamArray = stream.ToArray();
                     }
                     return new Binary(streamArray);
+#endif
                 }
             }
             else if (toType == typeof(byte[])) {
@@ -59,6 +63,9 @@ namespace System.Data.Linq {
                     return ((Guid)value).ToByteArray();
                 }
                 else {
+#if NET8_0_OR_GREATER
+                    throw new NotImplementedException("Binary formatter not implemented.");
+#else
                     BinaryFormatter formatter = new BinaryFormatter();
                     byte[] returnValue;
                     using (MemoryStream stream = new MemoryStream()) {
@@ -66,6 +73,7 @@ namespace System.Data.Linq {
                         returnValue = stream.ToArray();
                     }
                     return returnValue;
+#endif
                 }
             }
             else if (fromType == typeof(byte[])) {
@@ -73,12 +81,16 @@ namespace System.Data.Linq {
                     return new Guid((byte[])value);
                 }
                 else {
+#if NET8_0_OR_GREATER
+                    throw new NotImplementedException("Binary formatter not implemented.");
+#else
                     BinaryFormatter formatter = new BinaryFormatter();
                     object returnValue;
                     using (MemoryStream stream = new MemoryStream((byte[])value)) {
                         returnValue = ChangeType(formatter.Deserialize(stream), toType);
                     }
-                    return returnValue; 
+                    return returnValue;
+#endif
                 }
             }
             else if (fromType == typeof(Binary)) {
@@ -86,10 +98,14 @@ namespace System.Data.Linq {
                     return new Guid(((Binary)value).ToArray());
                 }
                 else {
+#if NET8_0_OR_GREATER
+                    throw new NotImplementedException("Binary formatter not implemented.");
+#else
                     BinaryFormatter formatter = new BinaryFormatter();
                     using (MemoryStream stream = new MemoryStream(((Binary)value).ToArray(), false)) {
                         return ChangeType(formatter.Deserialize(stream), toType);
                     }
+#endif
                 }
             }
             else if (toType.IsEnum) {
