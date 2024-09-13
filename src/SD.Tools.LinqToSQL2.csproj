@@ -3,8 +3,8 @@
     <TargetFrameworks>netstandard2.0;net48;net8.0</TargetFrameworks>
     <AssemblyName>SD.Tools.LinqToSQL2</AssemblyName>
     <RootNamespace>System.Data.Linq</RootNamespace>
-    <Version>1.0</Version>
-    <AssemblyVersion>1.0.0.0</AssemblyVersion>
+    <Version>2.0</Version>
+    <AssemblyVersion>2.0.0.0</AssemblyVersion>
 	<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <Authors>Solutions Design bv, LINQPad</Authors>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
